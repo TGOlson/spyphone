@@ -1,0 +1,17 @@
+MACHINE_NAME=rpi-haskell-machine
+
+# First check to see if we have our cpu-heavy machine
+if [ -z "$(docker-machine ls | grep $MACHINE_NAME)" ]; then
+  echo "Machine: $MACHINE_NAME does not exist. Creating machine..."
+  docker-machine create \
+    -d virtualbbox \
+    --virtualbox-cpu-count "4"
+    --virtualbox-disk-size "204800" # 200gb
+    --virtualbox-memory "4096" # 4gb
+fi
+
+# Start machine, idempotent if already running
+docker-machine start "$MACHINE_NAME" || true
+
+# Note: this should be called from the parent script
+eval "$(docker-machine env "$MACHINE_NAME")"

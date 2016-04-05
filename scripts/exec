@@ -1,39 +1,4 @@
 #!/usr/bin/env bash
 set -e
 
-WORK_DIR=/home/build
-STACK_ARM_ROOT_DIR="$(pwd)/.stack-root"
-cmd=$1
-
-# Run this to make sure the docker system is configured for our qemu emulation
-# It only needs to be run once on startup, and is idempotent after that
-docker run --rm --privileged multiarch/qemu-user-static:register --reset
-
-mkdir -p "$STACK_ARM_ROOT_DIR"
-
-# Notes:
-#   - Let stack handle caching instead of replying on the docker caching mechanisms.
-#   - We achieve this by mounting our current work dir, which includes .stack-work
-#   - And also by copying in and maintaining an arm-specific stack root directory.
-docker run -it \
-  -v "$(pwd):$WORK_DIR" \
-  -v "$STACK_ARM_ROOT_DIR:/root/.stack" \
-  tgolson/rpi-haskell-classy \
-  /bin/bash -ec "cd $WORK_DIR; $cmd"
-  # /bin/bash -ec "cd $WORK_DIR; rsync -av $STACK_ARM_ROOT_DIR /root/.stack $cmd"
-
-# Note: if we were not using rpi-haskell-classy, we would want to manage global
-# dependencies, and would do something like the below
-
-
-
-
-
-
-
-### Thoughts...
-# - what is we build a base container w/ deps?
-# docker build -t spyphone .
-#   - this would be based off of rpi-haskell-classy
-#   - so base lts + deps
-#   -
+docker-compose run spyphone "$@"

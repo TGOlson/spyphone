@@ -10,7 +10,7 @@ import Control.Concurrent
 main :: IO ()
 main = do
     hSetBuffering stdout LineBuffering
-    putStrLn "New build"
+    putStrLn "New build111122222233333444444444"
     print os
     print arch
     putStrLn "??!?bleepYO!!!??"
