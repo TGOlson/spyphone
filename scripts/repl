@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -e
+
+"$(pwd)/scripts/exec" /bin/bash -c "cd /home/build; stack ghci"

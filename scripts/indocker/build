@@ -7,7 +7,7 @@ echo "Building executable..."
 stack build
 
 mkdir -p out
-echo "Copying executables to out dir..."
+echo "Copying executables..."
 cp "$(stack path --local-install-root)"/bin/* out/
 
-echo "Build finished! Executables available in \"out/"
+echo "Build finished! Executables available in \"out/\""

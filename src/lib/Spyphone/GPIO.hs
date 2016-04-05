@@ -28,6 +28,10 @@ import Spyphone.Prelude
 -- There is edge control that enables polling (really events)
 -- Should look into that
 
+-- TODO:
+--   pin mappings from BCM to
+--   give helpful errors (on init error "Did you remember to unexport to pin?")
+
 -- Core Types ------------------------------------------------------------------
 
 data Pin (a :: Dir) where
@@ -51,9 +55,9 @@ instance ToIOData Dir where
 instance FromIOData Dir where
     fromIOData = \case "in"  -> Right In
                        "out" -> Right Out
-                       x     -> Left ("Cannot parse 'Dir' from '" <> x <> "'")
+                       x     -> Left ("Cannot parse \"Dir\" from \"" <> x <> "\"")
 
-data Value = HI | LO
+data Value = HI | LO deriving (Show)
 
 instance ToIOData Value where
     toIOData = \case HI -> "1"
@@ -61,7 +65,7 @@ instance ToIOData Value where
 instance FromIOData Value where
     fromIOData = \case "1" -> Right HI
                        "0" -> Right LO
-                       x   -> Left ("Cannot parse 'Value' from '" <> x <> "'")
+                       x   -> Left ("Cannot parse \"Value\" from \"" <> x <> "\"")
 
 -- We are going to do a lot of reading/writing to files w/ custom data types.
 -- Create a small interface to keep conversions consistent.
@@ -84,12 +88,20 @@ initWrite i = initPin pin >> return pin
 
 read :: MonadIO m => Pin a -> m Value
 read p =
-    fromIOData <$> readFile (valuePath p) >>= \case
+    fromIOData <$> runLineHack <$> readFile (valuePath p) >>= \case
         Right v -> return v
         Left e  -> error $ convertString $
-            "Error reading value file for " <> show p <> ":" <> e
+            "Error reading value file for \"" <> show p <> "\": " <> e
+  where
+    -- Note: too lazy to properly handle new lines in the value files
+    -- it looks like the gpio interface appends newlines
+    -- so file is read as "1\n"
+    -- TODO: handle correctly, maybe use hGetChar or something...
+    runLineHack t = case headMay (lines t) of
+        Nothing -> error "Error: runLineHack failed us."
+        Just t' -> t'
 
-set :: MonadIO m => Pin 'In -> Value -> m ()
+set :: MonadIO m => Pin 'Out -> Value -> m ()
 set p v = writeFile (valuePath p) (toIOData v)
 
 close :: MonadIO m => Pin a -> m ()
@@ -120,7 +132,7 @@ unexportPath :: FilePath
 unexportPath = basePath <> "/unexport"
 
 pinPath :: Pin a -> FilePath
-pinPath p = basePath <> show' (pinNum p)
+pinPath p = basePath <> "/gpio" <> show' (pinNum p)
 
 valuePath :: Pin a -> FilePath
 valuePath p = pinPath p <> "/value"

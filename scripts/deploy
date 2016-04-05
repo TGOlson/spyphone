@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -e
 
-rsync -e ssh ./out/* pi@raspberrypi.local:/home/pi/dev
+rsync -avz --progress -e ssh ./out/* pi@raspberrypi.local:/home/pi/dev
