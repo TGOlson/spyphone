@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
+apt-get install rsync
+mkdir -p .stack-root
+rsync -av /root/.stack/ .stack-root

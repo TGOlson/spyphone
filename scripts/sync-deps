@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -e
+
+# Notes:
+# This is a strange process that should really only need to be run during
+# initial dev setup, or upon re-pulling of the base image.
+#
+# This script is needed because our base image comes pre-populated w/ a few
+# haskell packages. But at the same time, some builds will add to the catolog
+# of haskell packages. This leaves us w/ the issue of caching. It is not exactly
+# clear where the merging of base and installed packages happens, and where to
+# save that merge.
+#
+# We can't use docker's built in caching, because all work is reset after exiting
+# a container. So what we do here is grab the inital stack cache in the base image
+# which is located at /root/.stack, and rsync that with our local stack-root cache
+# which is located at spyphone/.stack-root.
+#
+# Then we let our normal build process of mounting .stack-root to /root/.stack in
+# the container runs its normal course.
+#
+# Note: to re-iterate, this script will only be useful and improve caching after
+# pulling a new (or inital) version of the base image.
+
+WORK_DIR=/home/build
+
+# Build it!
+docker run -it \
+  -v "$(pwd):$WORK_DIR" \
+  tgolson/rpi-haskell-classy \
+  /bin/bash -ec "cd $WORK_DIR; ./scripts/indocker/sync-deps"

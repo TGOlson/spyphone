@@ -1,21 +1,11 @@
-FROM haskell:7.10.3
+FROM tgolson/rpi-haskell-classy
 
-WORKDIR /opt/server
+VOLUME /root/.stack
 
-# stack update?
-# RUN cabal update
+WORKDIR /home/build
 
-# Add just the .cabal file to capture dependencies
-COPY ./spyphone.cabal /opt/server/spyphone.cabal
-COPY ./stack.yaml /opt/server/stack.yaml
+CMD ./scripts/build_test
 
-# Docker will cache this command as a layer, freeing us up to
-# modify source code without re-installing dependencies
-# (unless the .cabal file changes!)
-RUN stack install --only-dependencies -j4
-
-# Add and Install Application Code
-COPY . /opt/server
-RUN stack build
-
-CMD ["stack", "exec", "spyphone"]
+# Note: to be run like
+# docker build -t rpi-haskell-builder .
+# docker run -it -v "$(pwd):/home/build"

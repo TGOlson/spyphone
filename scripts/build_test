@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -e
+
+# Build it!
+echo "Building executable..."
+stack build -j4
+mkdir -p out
+echo "Copying executable to out dir..."
+cp "$(stack path --local-install-root)/bin/spyphone" out/spyphone
+cp "$(stack path --local-install-root)/bin/gpio" out/gpio
+echo "Build finished! Executables available in \"out/"

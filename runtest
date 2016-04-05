@@ -1,4 +1,0 @@
-docker run spyphone
-
-# id=$(docker run -d spyphone stack exec spyphone)
-# docker logs -f $id

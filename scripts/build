@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -e
+
+# Build it!
+./scripts/exec "./scripts/indocker/build"
